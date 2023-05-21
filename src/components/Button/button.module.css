@@ -1,0 +1,26 @@
+.button {
+  padding: 8px 16px;
+  border-radius: 2px;
+  background-image: linear-gradient(to left, #120e3e, #174556,#4ba298, #499fa5,#16495a, #0e0e52);
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 20px;
+  color: #fff;
+  border: 0;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 24px;
+  font-style: normal;
+  font-weight: 500;
+  min-width: 200px;
+  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2),
+    0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+}
+.button:hover,
+.button:focus {
+    background-image: linear-gradient(to left, #5a0202, #af2604,#e0a904, #f1d205, #efa003,#980202, #520101);
+}
