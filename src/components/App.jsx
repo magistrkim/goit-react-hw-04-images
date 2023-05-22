@@ -1,83 +1,75 @@
 import ImageGallery from './ImageGallery/ImageGallery';
 import Searchbar from './Searchbar/Searchbar';
-import { Component } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Modal from './Modal/Modal';
 import Loader from './Loader/Loader';
 import { searchGallery } from './shared/gallery-api';
 import LoadMoreButton from './Button/Button';
 import ImageDetails from './ImageDetails/ImageDetails';
 
-export class App extends Component {
-  state = {
-    items: [],
-    loading: false,
-    error: null,
-    page: 1,
-    showModal: false,
-    imageDetails: null,
-  };
-  componentDidUpdate(prevProps, prevState) {
-    const { search, page } = this.state;
-    if (prevState.search !== search || prevState.page !== page) {
-      this.fetchImages();
+const App = () => {
+  const [search, setSearch] = useState('');
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [imageDetails, setImageDetails] = useState(null);
+
+  useEffect(() => {
+    if (!search) {
+      return;
     }
-  }
-  async fetchImages() {
-    try {
-      this.setState({ loading: true });
-      const { search, page } = this.state;
-      const data = await searchGallery(search, page);
-      this.setState(({ items }) => ({
-        items: [...items, ...data.hits],
-      }));
-    } catch (error) {
-      this.setState({ error: error.message });
-    } finally {
-      this.setState({ loading: false });
-    }
-  }
 
-  searchImages = ({ search }) => {
-    this.setState({ search, items: [], page: 1 });
-  };
+    const fetchImages = async () => {
+      try {
+        setLoading(true);
+        const data = await searchGallery(search, page);
+        setItems(prevItems => [...prevItems, ...data.hits]);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  loadMore = () => {
-    this.setState(({ page }) => ({ page: page + 1 }));
-  };
+    fetchImages();
+  }, [search, page]);
 
-  showImage = ({ largeImageURL, tags }) => {
-    this.setState({
-      showModal: true,
-      imageDetails: {
-        largeImageURL,
-        tags,
-      },
-    });
-  };
+  const searchImages = useCallback(({ search }) => {
+    setSearch(search);
+    setItems([]);
+    setPage(1);
+  }, []);
 
-  closeModal = () => {
-    this.setState({
-      showModal: false,
-      imageDetails: null,
-    });
-  };
+  const showImage = useCallback(({ largeImageURL, tags }) => {
+    setImageDetails({ largeImageURL, tags });
+    setShowModal(true);
+  }, []);
 
-  render() {
-    const { items, loading, error, showModal, imageDetails } = this.state;
-    const { searchImages, loadMore, showImage, closeModal } = this;
-    return (
-      <div className="App">
-        <Searchbar onSubmit={searchImages} />
-        <ImageGallery items={items} showImage={showImage} />
-        {error && <p>{error}</p>}
-        {loading && <Loader />}
-        {Boolean(items.length) && <LoadMoreButton onClick={loadMore} />}
-        {showModal && (
-          <Modal close={closeModal}>
-            <ImageDetails {...imageDetails} />
-          </Modal>
-        )}
-      </div>
-    );
-  }
-}
+  const loadMore = useCallback(() => {
+    setPage(prevPage => prevPage + 1);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setShowModal(false);
+    setImageDetails(null);
+  }, []);
+
+  return (
+    <div className="App">
+      <Searchbar onSubmit={searchImages} />
+      <ImageGallery items={items} showImage={showImage} />
+      {error && <p>{error}</p>}
+      {loading && <Loader />}
+      {Boolean(items.length) && <LoadMoreButton onClick={loadMore} />}
+      {showModal && (
+        <Modal close={closeModal}>
+          <ImageDetails {...imageDetails} />
+        </Modal>
+      )}
+    </div>
+  );
+};
+
+export default App;

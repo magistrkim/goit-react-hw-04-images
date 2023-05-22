@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 import PropTypes from 'prop-types';
 import css from './image-gallery.module.css';
@@ -14,7 +15,7 @@ const ImageGallery = ({ items, showImage }) => {
   return <ul className={css.gallery}>{elements}</ul>;
 };
 
-export default ImageGallery;
+export default memo(ImageGallery);
 
 ImageGallery.defaultProps = {
   items: [],
